@@ -71,39 +71,32 @@ def run_controller_with_rendering():
     
     with mujoco.viewer.launch_passive(env.mj_model, mj_data) as viewer:
         for i in range(5000):
-            try:
-                # Get control action
-                action = controller.get_action(state.obs)
-                
-                # Step environment
-                state = step_fn(state, action)
-                
-                # Copy state to MuJoCo data for rendering
-                mj_data.qpos[:] = state.data.qpos
-                mj_data.qvel[:] = state.data.qvel
-                mj_data.time = state.data.time
-                
-                # Forward kinematics for rendering
-                mujoco.mj_forward(env.mj_model, mj_data)
-                
-                # Update viewer
-                viewer.sync()
-                
-                # Print status
-                if i % 1 == 0:
-                    height = state.data.qpos[2]
-                    print(f"Step {i}: reward={state.reward:.3f}, height={height:.3f}")
-                
-                if state.done:
-                    print("Robot fell, resetting...")
-                    state = env.reset(rng)
-                
-                # Control simulation speed
-                
-            except KeyboardInterrupt:
-                print("Stopping simulation...")
-                break
-
+            # Get control action
+            action = controller.get_action(state.obs)
+            
+            # Step environment
+            state = step_fn(state, action)
+            
+            # Copy state to MuJoCo data for rendering
+            mj_data.qpos[:] = state.data.qpos
+            mj_data.qvel[:] = state.data.qvel
+            mj_data.time = state.data.time
+            
+            # Forward kinematics for rendering
+            mujoco.mj_forward(env.mj_model, mj_data)
+            
+            # Update viewer
+            viewer.sync()
+            
+            # Print status
+            if i % 1 == 0:
+                height = state.data.qpos[2]
+                print(f"Step {i}: reward={state.reward:.3f}, height={height:.3f}")
+            
+            if state.done:
+                print("Robot fell, resetting...")
+                state = env.reset(rng)
+            # breakpoint()
 
 if __name__ == '__main__':
     # Choose which version to run:
